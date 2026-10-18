@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#65a30d"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>🦊 Save the Hens</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;
+  font-family:system-ui,'Segoe UI',Tahoma,Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+body{background:linear-gradient(160deg,#fef9c3 0%,#dcfce7 55%,#d9f99d 100%);color:#3f3a1e}
+.screen{display:none;height:100vh;height:100dvh;max-width:440px;margin:0 auto;flex-direction:column;align-items:center;
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));touch-action:none}
+.screen.show{display:flex}
+/* ---------- home ---------- */
+#home,#hlevels{justify-content:flex-start;text-align:center;overflow-y:auto}
+.logo{font-size:44px;margin:24px 0 2px;font-weight:800;letter-spacing:-1px}
+.logo small{display:block;font-size:15px;font-weight:600;opacity:.65;margin-top:2px}
+.emojirow{font-size:28px;letter-spacing:6px;margin:8px 0 12px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.bigbtn{display:block;width:min(86vw,340px);margin:10px auto;padding:16px;font-size:20px;font-weight:800;font-family:inherit;
+  border:none;border-radius:22px;background:linear-gradient(145deg,#84cc16,#4d7c0f);color:#fff;cursor:pointer;
+  box-shadow:0 10px 24px rgba(101,163,13,.4)}
+.bigbtn:active{transform:scale(.96)}
+.howto{background:#fff;border-radius:20px;padding:14px 18px;margin:14px auto;width:min(88vw,350px);
+  font-size:13.5px;line-height:2;font-weight:600;box-shadow:0 8px 20px rgba(120,140,60,.18);text-align:right}
+h2.menutitle{margin:18px 0 2px;font-size:26px;font-weight:800}
+.sub{margin:0 0 8px;font-size:13px;opacity:.65;font-weight:600}
+#levelGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 20px;width:min(88vw,340px)}
+.lvlbtn{aspect-ratio:1/1;border-radius:20px;background:#fff;border:none;color:#3f3a1e;font-size:20px;font-weight:800;
+  cursor:pointer;position:relative;font-family:inherit;box-shadow:0 6px 14px rgba(120,140,60,.2)}
+.lvlbtn .st{position:absolute;bottom:5px;left:0;right:0;font-size:10px;color:#f5a301;letter-spacing:3px}
+.lvlbtn.locked{opacity:.35;cursor:default}
+.lvlbtn:not(.locked):active{transform:scale(.93)}
+.bestline{margin:14px 0;font-size:13px;font-weight:600;opacity:.7}
+/* ---------- game ---------- */
+header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px}
+h1{font-size:19px;margin:0;font-weight:800}
+.chips{display:flex;gap:6px}
+.chip{background:#fff;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:800;white-space:nowrap;
+  box-shadow:0 4px 10px rgba(120,140,60,.2)}
+.chip b{font-size:15px}
+.chip.time{background:linear-gradient(145deg,#fbbf24,#d97706);color:#fff}
+#inkwrap{width:min(94vw,400px);margin:0 0 8px}
+#inklabel{display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:4px;opacity:.8}
+#inkbar{height:10px;background:rgba(120,140,60,.18);border-radius:999px;overflow:hidden}
+#inkfill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#a16207,#ca8a04);transition:width .2s}
+#yardwrap{width:min(94vw,400px);position:relative}
+#yard{display:block;width:100%;aspect-ratio:420/540;background:#86c05c;border-radius:26px;touch-action:none;
+  box-shadow:0 14px 34px rgba(90,120,50,.35), inset 0 0 0 3px #6da34a;cursor:crosshair}
+.controls{width:100%;display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+button{font-family:inherit}
+.cbtn{border:none;border-radius:999px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;
+  background:#fff;color:#3f3a1e;box-shadow:0 6px 14px rgba(120,140,60,.22)}
+.cbtn:active{transform:scale(.94)}
+.cbtn.primary{background:linear-gradient(145deg,#84cc16,#4d7c0f);color:#fff}
+.overlay{position:fixed;inset:0;background:rgba(63,58,30,.45);backdrop-filter:blur(6px);display:none;
+  align-items:center;justify-content:center;z-index:100}
+.overlay.show{display:flex}
+.card{background:#fff;border-radius:28px;padding:28px 34px;text-align:center;max-width:88vw;color:#3f3a1e;
+  box-shadow:0 24px 60px rgba(90,110,40,.35);animation:cardin .35s ease}
+@keyframes cardin{from{transform:scale(.8) translateY(20px);opacity:0}}
+.card h2{margin:0 0 6px;font-size:26px;font-weight:800}
+.card p{margin:8px 0;font-size:15px}
+.card .row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.starsbig{font-size:52px;letter-spacing:10px;margin:6px 0;color:#e5dfc8}
+.starsbig .on{color:#f5a301;text-shadow:0 0 22px rgba(245,163,1,.6);animation:starpop .5s ease}
+.starsbig .on:nth-child(2){animation-delay:.15s}.starsbig .on:nth-child(3){animation-delay:.3s}
+@keyframes starpop{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.4)}100%{transform:scale(1)}}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-90px);background:#3f3a1e;color:#fff;
+  font-weight:700;padding:11px 24px;border-radius:999px;transition:transform .3s;z-index:120;white-space:nowrap;
+  max-width:92vw;box-shadow:0 10px 24px rgba(63,58,30,.35);font-size:14px}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.hint{font-size:12px;opacity:.65;margin-top:10px;text-align:center;line-height:1.8;font-weight:700}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div id="toast"></div>
+
+<!-- HOME -->
+<div id="home" class="screen show">
+  <div class="logo">🦊 Save the Hens<small>مرغیوں کو لومڑی سے بچاؤ!</small></div>
+  <div class="emojirow">🐔 🐔 🦊 🐔 🐔</div>
+  <button class="bigbtn" id="btnPlay">▶ کھیلیں</button>
+  <div class="howto">
+    🖊️ <b>انگلی سے باڑھ</b> بناؤ — لومڑی اسے پار نہیں کر سکتی!<br>
+    🐔 مرغیاں خود گھومتی ہیں — انہیں لومڑی سے دور رکھو<br>
+    ❤️ لومڑی نے مرغی پکڑی تو دل کم ہو گا — 3 دل!<br>
+    ⏱️ وقت پورا کرو اور <b>اسٹارز</b> جیتو!
+  </div>
+  <h2 class="menutitle">لیولز</h2>
+  <p class="sub">12 لیولز — لومڑیاں تیز ہوتی جائیں گی! 🦊</p>
+  <div id="levelGrid"></div>
+  <p class="bestline">🦊 مکمل آف لائن • انٹرنیٹ کی ضرورت نہیں</p>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <header>
+    <h1>🦊 <span id="lvlTitle">لیول 1</span></h1>
+    <div class="chips">
+      <div class="chip" id="hearts">❤️❤️❤️</div>
+      <div class="chip time">⏱️ <b id="timeLeft">30</b></div>
+    </div>
+  </header>
+  <div id="inkwrap">
+    <div id="inklabel"><span>🖊️ باڑھ کی روشنائی</span><span id="inkpct">100%</span></div>
+    <div id="inkbar"><div id="inkfill"></div></div>
+  </div>
+  <div id="yardwrap"><canvas id="yard"></canvas></div>
+  <div class="controls">
+    <button class="cbtn" id="btnClear">🧹 صاف کرو</button>
+    <button class="cbtn" id="btnHome">🏠</button>
+    <button class="cbtn" id="btnSound">🔊</button>
+  </div>
+  <div class="hint">انگلی سے لکیر کھینچو = لکڑی کی باڑھ 🪵<br>لومڑی باڑھ سے ٹکرا کر رک جاتی ہے!</div>
+</div>
+
+<div id="winOv" class="overlay"><div class="card">
+  <h2>🎉 مرغیاں محفوظ!</h2>
+  <div class="starsbig" id="starsBig"><span>★</span><span>★</span><span>★</span></div>
+  <p id="winStats"></p>
+  <div class="row">
+    <button class="cbtn primary" id="btnWinNext">اگلا لیول ▶</button>
+    <button class="cbtn" id="btnWinRetry">🔄</button>
+    <button class="cbtn" id="btnWinHome">🏠</button>
+  </div>
+</div></div>
+
+<div id="loseOv" class="overlay"><div class="card">
+  <h2>😢 لومڑی جیت گئی!</h2>
+  <p>مرغیاں پکڑی گئیں... دوبارہ کوشش کرو! 💪</p>
+  <div class="row">
+    <button class="cbtn primary" id="btnLoseRetry">▶ دوبارہ کھیلیں</button>
+    <button class="cbtn" id="btnLoseHome">🏠</button>
+  </div>
+</div></div>
+
+<script>
+"use strict";
+/* ================= Save the Hens — draw fences, block the fox ================= */
+var W=420, H=540;
+var canvas=document.getElementById('yard'), ctx=canvas.getContext('2d');
+
+var LEVELS=[
+  {hens:3, foxes:1, speed:52,  time:30, ink:900},
+  {hens:3, foxes:1, speed:60,  time:35, ink:900},
+  {hens:4, foxes:1, speed:66,  time:40, ink:1000},
+  {hens:4, foxes:2, speed:58,  time:40, ink:1100},
+  {hens:5, foxes:2, speed:64,  time:45, ink:1200},
+  {hens:5, foxes:2, speed:70,  time:45, ink:1200},
+  {hens:5, foxes:3, speed:62,  time:50, ink:1300},
+  {hens:6, foxes:3, speed:68,  time:50, ink:1400},
+  {hens:6, foxes:3, speed:74,  time:55, ink:1400},
+  {hens:7, foxes:3, speed:80,  time:55, ink:1500},
+  {hens:7, foxes:4, speed:72,  time:60, ink:1600},
+  {hens:8, foxes:4, speed:80,  time:60, ink:1700}
+];
+
+var level=0, hearts=3, timeLeft=0, ink=0, inkMax=1;
+var hens=[], foxes=[], fences=[], drawing=null;
+var gameActive=false, lastT=0, graceT=0, elapsed=0;
+var unlocked=1, stars={};
+var decor=[];
+
+function $(id){ return document.getElementById(id); }
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function rnd(a,b){ return a+Math.random()*(b-a); }
+function dist2(ax,ay,bx,by){ var dx=ax-bx, dy=ay-by; return dx*dx+dy*dy; }
+
+/* pure helpers (testable) */
+function segClosest(px,py,ax,ay,bx,by){
+  var dx=bx-ax, dy=by-ay, l2=dx*dx+dy*dy, t=l2?((px-ax)*dx+(py-ay)*dy)/l2:0;
+  t=Math.max(0,Math.min(1,t));
+  return {x:ax+t*dx, y:ay+t*dy};
+}
+function nearestHen(fx,fy){
+  var best=null, bd=1e18, i, h;
+  for(i=0;i<hens.length;i++){ h=hens[i];
+    if(h.caught) continue;
+    var d=dist2(fx,fy,h.x,h.y);
+    if(d<bd){ bd=d; best=h; }
+  }
+  return best;
+}
+
+/* ---------- setup ---------- */
+function sizeCanvas(){
+  var dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function makeDecor(){
+  decor=[];
+  for(var i=0;i<14;i++) decor.push({x:rnd(15,W-15), y:rnd(15,H-15), e:Math.random()<0.5?'🌼':'🌸', s:rnd(14,20)});
+  for(var j=0;j<7;j++) decor.push({x:rnd(10,W-10), y:rnd(10,H-10), e:'🌱', s:rnd(12,17)});
+}
+function spawnHens(n){
+  hens=[];
+  for(var i=0;i<n;i++) hens.push({
+    x:rnd(60,W-60), y:rnd(80,H-80), vx:0, vy:0,
+    wt:rnd(0,2), ang:rnd(0,Math.PI*2), caught:false, poof:0, peck:rnd(0,9)
+  });
+}
+function spawnFoxes(n,speed){
+  foxes=[];
+  for(var i=0;i<n;i++){
+    var edge=(i%4), x, y;
+    if(edge===0){ x=rnd(40,W-40); y=30; } else if(edge===1){ x=rnd(40,W-40); y=H-30; }
+    else if(edge===2){ x=30; y=rnd(60,H-60); } else { x=W-30; y=rnd(60,H-60); }
+    foxes.push({x:x, y:y, vx:0, vy:0, r:16, speed:speed*rnd(0.92,1.08), stun:0, ang:0});
+  }
+}
+function startLevel(i){
+  level=i;
+  var L=LEVELS[i];
+  hearts=3; timeLeft=L.time; inkMax=L.ink; ink=L.ink;
+  fences=[]; drawing=null; elapsed=0; graceT=2.2;
+  spawnHens(L.hens); spawnFoxes(L.foxes, L.speed);
+  gameActive=true; lastT=performance.now();
+  hideOverlays(); updateHUD();
+  $('lvlTitle').textContent='لیول '+(i+1);
+  show('game');
+  showToast('🖊️ جلدی باڑھ بناؤ — لومڑی آ رہی ہے!');
+  requestAnimationFrame(loop);
+}
+
+/* ---------- drawing fences ---------- */
+function canvasPos(e){
+  var rect=canvas.getBoundingClientRect();
+  return { x:(e.clientX-rect.left)/rect.width*W, y:(e.clientY-rect.top)/rect.height*H };
+}
+canvas.addEventListener('pointerdown',function(e){
+  e.preventDefault(); unlockAudio();
+  if(!gameActive||ink<=0) return;
+  var p=canvasPos(e);
+  drawing=[p];
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove',function(e){
+  if(!drawing||!gameActive) return;
+  e.preventDefault();
+  var p=canvasPos(e), last=drawing[drawing.length-1];
+  var d=Math.sqrt(dist2(p.x,p.y,last.x,last.y));
+  if(d<7) return;
+  if(d>ink) return;
+  drawing.push(p); ink-=d; updateHUD();
+  sDraw();
+});
+function endDraw(){
+  if(drawing&&drawing.length>1) fences.push(drawing);
+  drawing=null;
+}
+canvas.addEventListener('pointerup',endDraw);
+canvas.addEventListener('pointercancel',endDraw);
+
+/* ---------- physics ---------- */
+function collideCircleFences(o){
+  for(var it=0;it<2;it++){
+    for(var li=0;li<fences.length;li++){
+      var line=fences[li];
+      for(var i=0;i<line.length-1;i++){
+        var a=line[i], b=line[i+1];
+        var cp=segClosest(o.x,o.y,a.x,a.y,b.x,b.y);
+        var dx=o.x-cp.x, dy=o.y-cp.y, d=Math.sqrt(dx*dx+dy*dy);
+        if(d<o.r){
+          var nx, ny;
+          if(d>0.001){ nx=dx/d; ny=dy/d; }
+          else { nx=0; ny=-1; d=0.001; }
+          o.x=cp.x+nx*o.r; o.y=cp.y+ny*o.r;
+          var vn=o.vx*nx+o.vy*ny;
+          if(vn<0){ o.vx-=vn*nx; o.vy-=vn*ny; }
+        }
+      }
+    }
+  }
+}
+function updateFox(f,dt){
+  if(f.stun>0){ f.stun-=dt; return; }
+  if(graceT>0) return;
+  var h=nearestHen(f.x,f.y);
+  if(!h){ f.vx*=0.98; f.vy*=0.98; }
+  else{
+    var dx=h.x-f.x, dy=h.y-f.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+    var sp=f.speed*(1+elapsed*0.004); /* foxes get slightly faster over time */
+    f.vx=dx/d*sp; f.vy=dy/d*sp;
+  }
+  f.x+=f.vx*dt; f.y+=f.vy*dt;
+  f.x=Math.max(f.r,Math.min(W-f.r,f.x));
+  f.y=Math.max(f.r,Math.min(H-f.r,f.y));
+  collideCircleFences(f);
+  f.ang=Math.atan2(f.vy,f.vx);
+  if(h&&dist2(f.x,f.y,h.x,h.y)<(f.r+13)*(f.r+13)) catchHen(h,f);
+}
+function updateHen(h,dt,t){
+  if(h.caught){ h.poof+=dt; return; }
+  h.peck+=dt;
+  h.wt-=dt;
+  if(h.wt<=0){ h.wt=rnd(1,2.6); h.ang=rnd(0,Math.PI*2); }
+  var sp=34;
+  /* flee nearby foxes */
+  var fx=0, fy=0, i, f;
+  for(i=0;i<foxes.length;i++){ f=foxes[i];
+    var d2=dist2(h.x,h.y,f.x,f.y);
+    if(d2<110*110){ var d=Math.sqrt(d2)||1; fx+=(h.x-f.x)/d*90; fy+=(h.y-f.y)/d*90; }
+  }
+  var vx=Math.cos(h.ang)*sp+fx, vy=Math.sin(h.ang)*sp+fy;
+  h.x+=vx*dt; h.y+=vy*dt;
+  var m=26;
+  if(h.x<m){ h.x=m; h.ang=Math.PI-h.ang; }
+  if(h.x>W-m){ h.x=W-m; h.ang=Math.PI-h.ang; }
+  if(h.y<m+10){ h.y=m+10; h.ang=-h.ang; }
+  if(h.y>H-m){ h.y=H-m; h.ang=-h.ang; }
+  h.vx=vx; h.vy=vy;
+}
+function catchHen(h,f){
+  h.caught=true; h.poof=0;
+  hearts--; updateHUD(); sCatch();
+  showToast(hearts>0?'😢 لومڑی نے مرغی پکڑ لی!':'💔');
+  f.stun=2.2;
+  var i, hh;
+  for(i=0;i<hens.length;i++){ hh=hens[i];
+    if(!hh.caught){ hh.ang=Math.atan2(hh.y-f.y,hh.x-f.x); hh.wt=1.2; } }
+  if(hearts<=0){ setTimeout(function(){ if(gameActive) lose(); },900); }
+}
+
+/* ---------- render ---------- */
+function drawFenceLine(line){
+  if(line.length<1) return;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle='#8a5a2b'; ctx.lineWidth=11;
+  ctx.beginPath(); ctx.moveTo(line[0].x,line[0].y);
+  for(var i=1;i<line.length;i++) ctx.lineTo(line[i].x,line[i].y);
+  ctx.stroke();
+  ctx.strokeStyle='#a9743c'; ctx.lineWidth=6;
+  ctx.stroke();
+  ctx.fillStyle='#6e4520';
+  for(var j=0;j<line.length;j+=4){
+    ctx.beginPath(); ctx.arc(line[j].x,line[j].y,5,0,7); ctx.fill();
+  }
+}
+function render(t){
+  ctx.clearRect(0,0,W,H);
+  var i, d;
+  for(i=0;i<decor.length;i++){ d=decor[i]; ctx.font=d.s+'px serif'; ctx.fillText(d.e,d.x,d.y); }
+  for(i=0;i<fences.length;i++) drawFenceLine(fences[i]);
+  if(drawing&&drawing.length>1) drawFenceLine(drawing);
+  var h;
+  for(i=0;i<hens.length;i++){ h=hens[i];
+    if(h.caught){
+      if(h.poof<0.6){
+        ctx.save(); ctx.globalAlpha=1-h.poof/0.6;
+        ctx.font='30px serif'; ctx.fillText('💨',h.x-14,h.y+10); ctx.restore();
+      }
+      continue;
+    }
+    var bob=Math.sin(h.peck*7)*2.5;
+    var flip=h.vx<0?-1:1;
+    ctx.save(); ctx.translate(h.x,h.y+bob); ctx.scale(flip,1);
+    ctx.font='34px serif'; ctx.fillText('🐔',-17,12);
+    ctx.restore();
+  }
+  var f;
+  for(i=0;i<foxes.length;i++){ f=foxes[i];
+    ctx.save(); ctx.translate(f.x,f.y);
+    ctx.rotate(f.ang);
+    var shake=f.stun>0?Math.sin(t*30)*3:0;
+    ctx.font='36px serif'; ctx.fillText('🦊',-18+shake,13);
+    ctx.restore();
+    if(f.stun>0){ ctx.font='20px serif'; ctx.fillText('💫',f.x-10,f.y-24); }
+  }
+  if(graceT>0){
+    ctx.fillStyle='rgba(63,58,30,.75)';
+    ctx.font='bold 30px system-ui';
+    ctx.textAlign='center';
+    ctx.fillText('تیار ہو جاؤ... '+Math.ceil(graceT),W/2,H/2);
+    ctx.textAlign='left';
+  }
+}
+
+/* ---------- loop ---------- */
+function loop(t){
+  if(!gameActive) return;
+  var dt=Math.min(0.05,(t-lastT)/1000); lastT=t;
+  elapsed+=dt;
+  if(graceT>0){ graceT-=dt; }
+  else{
+    timeLeft-=dt;
+    if(timeLeft<=0){ timeLeft=0; win(); return; }
+  }
+  var i;
+  for(i=0;i<foxes.length;i++) updateFox(foxes[i],dt);
+  for(i=0;i<hens.length;i++) updateHen(hens[i],dt,t/1000);
+  render(t);
+  if(((elapsed*10)|0)!==(((elapsed-dt)*10)|0)) updateHUD();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- HUD / flow ---------- */
+function updateHUD(){
+  var hh='';
+  for(var i=0;i<3;i++) hh+=i<hearts?'❤️':'🤍';
+  $('hearts').innerHTML=hh;
+  $('timeLeft').textContent=Math.ceil(timeLeft);
+  $('lvlTitle').textContent='لیول '+(level+1);
+  var pct=Math.max(0,Math.round(ink/inkMax*100));
+  $('inkfill').style.width=pct+'%';
+  $('inkpct').textContent=pct+'%';
+}
+function show(id){
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('show');
+  $(id).classList.add('show');
+}
+function hideOverlays(){
+  var ov=document.querySelectorAll('.overlay');
+  for(var i=0;i<ov.length;i++) ov[i].classList.remove('show');
+}
+function goHome(){
+  gameActive=false; hideOverlays(); renderLevelGrid(); show('home');
+}
+function renderLevelGrid(){
+  var g=$('levelGrid'); g.innerHTML='';
+  LEVELS.forEach(function(L,i){
+    var b=document.createElement('button');
+    var locked=i>=unlocked;
+    b.className='lvlbtn'+(locked?' locked':'');
+    var num=document.createElement('div'); num.textContent=locked?'🔒':(i+1); b.appendChild(num);
+    if(!locked&&stars[i]){
+      var st=document.createElement('div'); st.className='st';
+      st.textContent='★'.repeat(stars[i]); b.appendChild(st);
+    }
+    if(!locked) b.addEventListener('click',function(){ unlockAudio(); startLevel(i); });
+    g.appendChild(b);
+  });
+}
+function win(){
+  gameActive=false;
+  var s=Math.max(1,hearts);
+  if(!stars[level]||s>stars[level]){ stars[level]=s; lsSet('sh_stars',JSON.stringify(stars)); }
+  if(level+1<LEVELS.length&&level+2>unlocked){ unlocked=level+2; lsSet('sh_unlocked',String(unlocked)); }
+  var spans=$('starsBig').querySelectorAll('span');
+  for(var i=0;i<3;i++) spans[i].className=i<s?'on':'';
+  var saved=hens.filter(function(h){return !h.caught;}).length;
+  $('winStats').innerHTML='🐔 '+saved+' مرغیاں محفوظ!';
+  $('btnWinNext').style.display=level+1<LEVELS.length?'':'none';
+  $('winOv').classList.add('show');
+  sWin(); renderLevelGrid();
+}
+function lose(){
+  gameActive=false;
+  $('loseOv').classList.add('show');
+  sOver();
+}
+var toastTimer=null;
+function showToast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove('show'); },2200);
+}
+
+/* ---------- sound ---------- */
+var AC=null, muted=false;
+function unlockAudio(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(AC&&AC.state==='suspended') AC.resume();
+}
+function tone(f,delay,dur,type,vol){
+  if(muted||!AC) return;
+  try{
+    var t=AC.currentTime+delay;
+    var o=AC.createOscillator(), g=AC.createGain();
+    o.type=type||'sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.14,t+0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
+}
+function sDraw(){ tone(220+Math.random()*80,0,.05,'triangle',.05); }
+function sCatch(){ tone(300,0,.2,'sawtooth',.12); tone(200,.12,.3,'sawtooth',.12); }
+function sCluck(){ var f=500+Math.random()*200; tone(f,0,.07,'square',.05); tone(f*1.2,.08,.07,'square',.05); }
+function sWin(){ var n=[523,659,784,1047]; for(var i=0;i<n.length;i++) tone(n[i],i*.11,.22,'triangle'); }
+function sOver(){ tone(400,0,.2,'sawtooth',.1); tone(300,.15,.3,'sawtooth',.1); }
+setInterval(function(){ if(gameActive&&Math.random()<0.25) sCluck(); },3000);
+
+/* ---------- init ---------- */
+$('btnPlay').addEventListener('click',function(){ unlockAudio(); startLevel(Math.min(unlocked,LEVELS.length)-1); });
+$('btnClear').addEventListener('click',function(){
+  if(!gameActive) return;
+  fences=[]; var L=LEVELS[level]; ink=L.ink; updateHUD(); tone(400,0,.1);
+  showToast('🧹 باڑھ صاف — روشنائی واپس!');
+});
+$('btnHome').addEventListener('click',function(){ goHome(); });
+$('btnWinNext').addEventListener('click',function(){ unlockAudio(); startLevel(level+1); });
+$('btnWinRetry').addEventListener('click',function(){ unlockAudio(); startLevel(level); });
+$('btnWinHome').addEventListener('click',function(){ goHome(); });
+$('btnLoseRetry').addEventListener('click',function(){ unlockAudio(); startLevel(level); });
+$('btnLoseHome').addEventListener('click',function(){ goHome(); });
+$('btnSound').addEventListener('click',function(){
+  muted=!muted; unlockAudio();
+  $('btnSound').textContent=muted?'🔇':'🔊';
+});
+window.addEventListener('resize',sizeCanvas);
+unlocked=parseInt(lsGet('sh_unlocked','1'),10)||1;
+try{ stars=JSON.parse(lsGet('sh_stars','{}'))||{}; }catch(e){ stars={}; }
+sizeCanvas(); makeDecor(); renderLevelGrid(); show('home');
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
